@@ -25,7 +25,7 @@
     <cfquery dbtype="query" name="courses_qrs">
         SELECT * FROM ListFiles
         WHERE IsDirectory = 'YES'
-        AND name LIKE '%_gs_%'
+        AND name LIKE '%_gs%'
     </cfquery>  
               
 <cfreturn courses_qrs>
