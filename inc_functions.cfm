@@ -143,7 +143,8 @@
 <cfset arrayAppend(stringArr,'<?xml version="1.0" encoding="utf-8"?>')>
 <cfset arrayAppend(stringArr,'<sitemap>')>
 
-<cfloop collection="#arguments.modulesFilesStruct#" item="m">
+
+<cfloop list="#ListSort(StructKeyList(arguments.modulesFilesStruct,','), "text", "ASC")#" index="m">
 	<cfset arrayAppend(stringArr, tb1 & '<module  title="#m#" visible="true" indexpage="false" icon="" bg="">')>
     	<cfset lessonArr = arguments.modulesFilesStruct[m]>
         
