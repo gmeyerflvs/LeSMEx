@@ -35,14 +35,30 @@ textarea { width:500px; height:500px;}
     <body>
 <cfinclude template="inc_config.cfm">    
 <cfinclude template="inc_functions.cfm">
+
+
+
+<!--- PROCESS BASED ON SUBMITTED FORM --->
+
+<cfif isDefined('form.courses_list_choice')>
+    
+    <cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice)>  <!--- educator_econ_v9_gs_e11 --->
+    
+    <!---  <cfdump var="#modulesFilesStruct#">--->
+    
+    <!---  --->
+    <cfset xmlOut = getSiteMapXML(modulesFilesStruct)>
+
+</cfif>
+
+
+
+
+
+
+
 <cfset courses_qrs = showCourses(ftp_username,ftp_password,ftp_server)>
 
-<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,'educator_physics_v10_gs_e12')>  <!--- educator_econ_v9_gs_e11 --->
-
-<!---  <cfdump var="#modulesFilesStruct#">--->
-
-<!---  --->
-<cfset xmlOut = getSiteMapXML(modulesFilesStruct)>
 
 
 <p>
@@ -52,12 +68,13 @@ textarea { width:500px; height:500px;}
 </p>
 <hr>
 <p class="help-block">Directions: Select the Course Folder from which you want to extract a CF4 Site Map</p>
+
 <hr>
-<form role="form" method="post" action="gscm.cfm">
+<form role="form" method="post" action="index.cfm">
         <div class="form-group">
         <label>Select Course</label>
         
-        <select name="courses_list" class="form-control width300">
+        <select name="courses_list_choice" class="form-control width300">
         	<cfoutput query="courses_qrs">
 				<option>#name#</option>
 			</cfoutput>
@@ -67,25 +84,16 @@ textarea { width:500px; height:500px;}
         <hr>
         <h4>&nbsp;</h4>
         <div class="form-group"> </div>
-        <button type="submit" class="btn btn-default">Process!</button>
+        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button>
         
-        <textarea class="form-control width500 mheight200" style="display:block;" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(xmlOut)#</cfoutput></textarea>
-    </form>
+        <cfif isDefined('form.courses_list_choice')>
+        	<textarea class="form-control width500 mheight200" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(xmlOut)#</cfoutput></textarea>
+        </cfif>
+            </form>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
 <!-- Include all compiled plugins (below), or include individual files as needed --> 
 <script src="js/bootstrap.min.js"></script> 
-<script>
-/*
-		$('#id_check_rule_matches').click(function () {
-			if ($(this).is(":checked")) {
-				$('#id_check_rule_matches_suppress').show();
-				
-			} else {
-				$('#id_check_rule_matches_suppress').hide();
-			}
-			
-		});*/
-    </script>
+
 </body>
 </html>

@@ -26,6 +26,7 @@
         SELECT * FROM ListFiles
         WHERE IsDirectory = 'YES'
         AND name LIKE '%_gs%'
+        AND name NOT LIKE '%Documents%'
     </cfquery>  
               
 <cfreturn courses_qrs>
