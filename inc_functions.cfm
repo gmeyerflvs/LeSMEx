@@ -155,7 +155,7 @@
             	
                 <cfset pcount = 1>
                 <cfloop query="qrs">
-                	<cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="Page #get2Dig(lcount)#.#get2Dig(pcount)#"/>')>
+                	<cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="Page #lcount#.#get2Dig(pcount)#"/>')>
                 	<cfset pcount++>
                 </cfloop>
             <cfset arrayAppend(stringArr,tb2 & '</lesson>')>
