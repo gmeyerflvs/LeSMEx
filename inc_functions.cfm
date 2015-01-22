@@ -145,17 +145,18 @@
 
 
 <cfloop list="#ListSort(StructKeyList(arguments.modulesFilesStruct,','), "text", "ASC")#" index="m">
-	<cfset arrayAppend(stringArr, tb1 & '<module  title="#m#" visible="true" indexpage="false" icon="" bg="">')>
+	<cfset arrayAppend(stringArr, tb1 & '<module title="#m#" visible="true" indexpage="false" icon="" bg="">')>
     	<cfset lessonArr = arguments.modulesFilesStruct[m]>
         
         <cfset lcount = 0>
     	<cfloop from="1" to="#arrayLen(lessonArr)#" index="i">
         		<cfset qrs = lessonArr[i]>
-				<cfset arrayAppend(stringArr,tb2 & '<lesson title="Lesson #lcount#" num="#getModNumFromPage(qrs.name)#.#get2Dig(lcount)#" time="45" points="1">')>
+                <cfset moduleDigits = getModNumFromPage(qrs.name)>
+				<cfset arrayAppend(stringArr,tb2 & '<lesson title="#get2Dig(moduleDigits)#.#get2Dig(lcount)# " num="#moduleDigits#.#get2Dig(lcount)#" time="45" points="1">')>
             	
                 <cfset pcount = 1>
                 <cfloop query="qrs">
-                	<cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="Page #lcount#.#get2Dig(pcount)#"/>')>
+                	<cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="#get2Dig(moduleDigits)#.#get2Dig(lcount)#: Page #pcount#"/>')>
                 	<cfset pcount++>
                 </cfloop>
             <cfset arrayAppend(stringArr,tb2 & '</lesson>')>
