@@ -42,12 +42,19 @@ textarea { width:500px; height:500px;}
 
 <cfif isDefined('form.courses_list_choice')>
     
-    <cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice)>  <!--- educator_econ_v9_gs_e11 --->
+    <cfif isDefined('form.toggle_base_process')>
+    	<cfset bool_base_process = true>
+    <cfelse>
+    	<cfset bool_base_process = false>
+    </cfif>
+    
+	
+	<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice,bool_base_process)>  <!--- educator_econ_v9_gs_e11 --->
     
     <!---  <cfdump var="#modulesFilesStruct#">--->
     
     <!---  --->
-    <cfset xmlOut = getSiteMapXML(modulesFilesStruct)>
+    <cfset xmlOut = getSiteMapXML(modulesFilesStruct,bool_base_process)>
 
 </cfif>
 
@@ -82,12 +89,14 @@ textarea { width:500px; height:500px;}
                 <option>#name#</option>
 			</cfoutput>
         </select>
+        
        
     </div>
         <hr>
         <h4>&nbsp;</h4>
         <div class="form-group"> </div>
-        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button>
+        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button> 
+        <input type="checkbox" name="toggle_base_process" id="id_toggle_base_process"/> Ignore File Naming Convention (sitemap w/o lessons)
         
         <cfif isDefined('form.courses_list_choice')>
         	<textarea class="form-control width500 mheight200" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(xmlOut)#</cfoutput></textarea>

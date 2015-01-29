@@ -39,6 +39,7 @@
 <cfargument name="p" type="string">
 <cfargument name="s" type="string">
 <cfargument name="dir" type="string">
+<cfargument name="bool_base_process" type="boolean" required="no" default="false">
 
     <cfset returnStruct = structNew()>
     
@@ -82,7 +83,13 @@
             order by path
         </cfquery>
         
-        <cfset lessonsArr = queryToLessonsArr(html_qrs2)>
+        <cfif arguments.bool_base_process>
+        	<cfset lessonsArr = arrayNew(1)>
+            <cfset lessonsArr[1] = html_qrs2>
+        <cfelse>
+        	<cfset lessonsArr = queryToLessonsArr(html_qrs2)>
+        </cfif>
+        
         
         <!--- <cfdump var="#lessonsArr#"> --->
 		<cfset m = getMLP(html_qrs2.name,1)>
@@ -97,6 +104,7 @@
     connection = "ftpc" 
     stopOnError = "Yes"> 
 
+<!--- <cfdump var="#returnStruct#"><cfabort> --->
               
 <cfreturn returnStruct>
 </cffunction>
@@ -134,6 +142,7 @@
 <!--- Create XML output --->
 <cffunction name="getSiteMapXML" output="yes" returntype="string">
 <cfargument name="modulesFilesStruct" type="struct" required="yes">
+<cfargument name="bool_base_process" type="boolean" required="no" default="false">
 
 <cfset tb1 = "     ">
 <cfset tb2 = tb1 & tb1>
@@ -144,25 +153,39 @@
 <cfset arrayAppend(stringArr,'<sitemap>')>
 
 
+
 <cfloop list="#ListSort(StructKeyList(arguments.modulesFilesStruct,','), "text", "ASC")#" index="m">
 	<cfset arrayAppend(stringArr, tb1 & '<module title="#m#" visible="true" indexpage="false" icon="" bg="">')>
-    	<cfset lessonArr = arguments.modulesFilesStruct[m]>
-        
-        <cfset lcount = 0>
-    	<cfloop from="1" to="#arrayLen(lessonArr)#" index="i">
-        		<cfset qrs = lessonArr[i]>
-                <cfset moduleDigits = getModNumFromPage(qrs.name)>
-				<cfset arrayAppend(stringArr,tb2 & '<lesson title="#get2Dig(moduleDigits)#.#get2Dig(lcount)# " num="#moduleDigits#.#get2Dig(lcount)#" time="45" points="1">')>
-            	
-                <cfset pcount = 1>
-                <cfloop query="qrs">
-                	<cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="#get2Dig(moduleDigits)#.#get2Dig(lcount)#: Page #pcount#"/>')>
-                	<cfset pcount++>
+    	
+			<cfset lessonArr = arguments.modulesFilesStruct[m]>
+            
+            <cfset lcount = 0>
+            <cfif arguments.bool_base_process>
+            	<cfloop from="1" to="#arrayLen(lessonArr)#" index="i">
+                        <cfset qrs = lessonArr[i]>
+                        <cfset pcount = 1>
+                        <cfloop query="qrs">
+                            <cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="??.??: Page #pcount#"/>')>
+                            <cfset pcount++>
+                        </cfloop>
+                    
+                    <cfset lcount++>
                 </cfloop>
-            <cfset arrayAppend(stringArr,tb2 & '</lesson>')>
-            <cfset lcount++>
-        </cfloop>
-    
+            <cfelse>
+                <cfloop from="1" to="#arrayLen(lessonArr)#" index="i">
+                        <cfset qrs = lessonArr[i]>
+                        <cfset moduleDigits = getModNumFromPage(qrs.name)>
+                        <cfset arrayAppend(stringArr,tb2 & '<lesson title="#get2Dig(moduleDigits)#.#get2Dig(lcount)# " num="#moduleDigits#.#get2Dig(lcount)#" time="45" points="1">')>
+                        
+                        <cfset pcount = 1>
+                        <cfloop query="qrs">
+                            <cfset arrayAppend(stringArr,tb3 & '<page href="../#m#/#qrs.name#" title="#get2Dig(moduleDigits)#.#get2Dig(lcount)#: Page #pcount#"/>')>
+                            <cfset pcount++>
+                        </cfloop>
+                    <cfset arrayAppend(stringArr,tb2 & '</lesson>')>
+                    <cfset lcount++>
+                </cfloop>
+    	 	</cfif>
     <cfset arrayAppend(stringArr,tb1 & '</module>')>
 </cfloop> 
 
