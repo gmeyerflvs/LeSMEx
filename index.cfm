@@ -82,10 +82,11 @@ textarea { width:500px; height:500px;}
         <label>Select Course</label>
         
         <select name="courses_list_choice" class="form-control width300">
-        	<cfoutput query="courses_qrs">
-				<cfif isDefined('form.courses_list_choice')>
-                <option selected="selected">#form.courses_list_choice#</option>
+        		<cfif isDefined('form.courses_list_choice')>
+                <cfoutput><option selected="selected">#form.courses_list_choice#</option></cfoutput>
                 </cfif>
+			<cfoutput query="courses_qrs">
+				
                 <option>#name#</option>
 			</cfoutput>
         </select>
