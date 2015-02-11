@@ -33,6 +33,76 @@
 </cffunction>
 
 
+  
+        
+<!--- Returns string list of html files with prepended paths concatenated with resulting html page names --->
+<cffunction name="modulesFilesPathList" output="no" returntype="string">
+<cfargument name="u" type="string">
+<cfargument name="p" type="string">
+<cfargument name="s" type="string">
+<cfargument name="dir" type="string">
+<cfargument name="url_concatlist_prepend_path" type="string" required="no" default="">
+
+
+    <cfset returnStr = "">
+    
+    <cfftp action = "open" 
+        username = "#arguments.u#" 
+        connection = "ftpc" 
+        password = "#arguments.p#" 
+        server = "#arguments.s#" 
+        stopOnError = "Yes"> 
+        
+    <cfftp action = "LISTDIR" 
+        stopOnError = "Yes" 
+        name = "ListFiles" 
+        directory = "/#arguments.dir#" 
+        connection = "ftpc">
+        
+    <!--- get folders with word 'module' in them --->    
+    <cfquery dbtype="query" name="html_qrs">
+        SELECT * FROM ListFiles
+        WHERE IsDirectory = 'YES'
+        AND name LIKE '%module%'
+        ORDER BY path
+    </cfquery>
+    
+    <cfset arrCt = 1>
+    <cfloop query="html_qrs">
+        
+        <cfftp action = "LISTDIR" 
+        stopOnError = "Yes" 
+        name = "modfiles_qrs" 
+        directory = "#html_qrs.path#" 
+        connection = "ftpc">
+        
+        <!--- get and sort files that end with htm or html ---> 
+        <cfquery dbtype="query" name="html_qrs2">
+            SELECT name,path FROM modfiles_qrs
+            WHERE IsDirectory = 'NO'
+            AND name LIKE '%.htm%'
+            AND name NOT LIKE '%.LCK'
+            order by path
+        </cfquery>
+        
+        <cfloop query="html_qrs2">
+        	<cfset returnStr &= arguments.url_concatlist_prepend_path & html_qrs2.name & chr(10)>
+        </cfloop>
+        
+        <cfset arrCt++>
+    </cfloop>
+    
+    
+      
+    <cfftp action = "close" 
+    connection = "ftpc" 
+    stopOnError = "Yes"> 
+
+              
+<cfreturn returnStr>
+</cffunction>
+
+
 <!--- Returns struct with each module folder and query results of elegible files for processing--->
 <cffunction name="getModulesFiles" output="no" returntype="struct">
 <cfargument name="u" type="string">
@@ -40,6 +110,7 @@
 <cfargument name="s" type="string">
 <cfargument name="dir" type="string">
 <cfargument name="bool_base_process" type="boolean" required="no" default="false">
+
 
     <cfset returnStruct = structNew()>
     

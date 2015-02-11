@@ -48,13 +48,23 @@ textarea { width:500px; height:500px;}
     	<cfset bool_base_process = false>
     </cfif>
     
+    <cfif isDefined('form.toggle_url_concatlist')>
+    	<cfset bool_url_concatlist = true>
+    <cfelse>
+    	<cfset bool_url_concatlist = false>
+    </cfif>
+    
+    
+    <cfif isDefined('form.toggle_url_concatlist')>
+    	<cfset stringout = modulesFilesPathList(ftp_username,ftp_password,ftp_server,form.courses_list_choice,form.url_concatlist_prepend_path)>
+    
+    <cfelse>
+    
+    	<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice,bool_base_process)> 
+		<cfset stringOut = getSiteMapXML(modulesFilesStruct,bool_base_process)> 
+    </cfif>
 	
-	<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice,bool_base_process)>  <!--- educator_econ_v9_gs_e11 --->
     
-    <!---  <cfdump var="#modulesFilesStruct#">--->
-    
-    <!---  --->
-    <cfset xmlOut = getSiteMapXML(modulesFilesStruct,bool_base_process)>
 
 </cfif>
 
@@ -96,11 +106,15 @@ textarea { width:500px; height:500px;}
         <hr>
         <h4>&nbsp;</h4>
         <div class="form-group"> </div>
-        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button> 
-        <input type="checkbox" name="toggle_base_process" id="id_toggle_base_process"/> Ignore File Naming Convention (sitemap w/o lessons)
+        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button> <br>
+        <input type="checkbox" name="toggle_base_process" id="id_toggle_base_process"/> Ignore File Naming Convention (sitemap w/o lessons)<br>
+         <input type="checkbox" name="toggle_url_concatlist" id="id_toggle_url_concatlist"/> Create html page list with prepended url path<br>
+         <span id="id_concatlist_prepend_path_container" style="display:none;"> 
+         	URL Prepend Path: <input class="width500" type="text" name="url_concatlist_prepend_path" id="id_concatlist_prepend_path" placeholder="http://domain.com/path/to/page/"/>
+         </span>
         
         <cfif isDefined('form.courses_list_choice')>
-        	<textarea class="form-control width500 mheight200" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(xmlOut)#</cfoutput></textarea>
+        	<textarea class="form-control width500 mheight200" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(stringOut)#</cfoutput></textarea>
         </cfif>
             </form>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) --> 
@@ -108,5 +122,28 @@ textarea { width:500px; height:500px;}
 <!-- Include all compiled plugins (below), or include individual files as needed --> 
 <script src="js/bootstrap.min.js"></script> 
 
+
+<script>
+$(document).ready(function() {
+	var base_process = $('#id_toggle_base_process');
+	var url_concatlist = $('#id_toggle_url_concatlist');
+	var prepend_path_container = $('#id_concatlist_prepend_path_container');
+	
+	base_process.click(function(){
+		url_concatlist.prop( "checked", false );
+		prepend_path_container.hide();
+		
+	});
+	url_concatlist.click(function(){
+		base_process.prop( "checked", false );
+		if(url_concatlist.prop("checked")){
+				prepend_path_container.show();
+		}else{
+			prepend_path_container.hide();
+		}
+	});
+});
+
+</script>
 </body>
 </html>
