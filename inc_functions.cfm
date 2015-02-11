@@ -86,7 +86,9 @@
         </cfquery>
         
         <cfloop query="html_qrs2">
-        	<cfset returnStr &= arguments.url_concatlist_prepend_path & html_qrs2.name & chr(10)>
+        	<cfset module = listGetAt(html_qrs2.path,listlen(html_qrs2.path,'/') -1,'/')>
+			
+			<cfset returnStr &= arguments.url_concatlist_prepend_path & module & '/' & html_qrs2.name & chr(10)>
         </cfloop>
         
         <cfset arrCt++>
