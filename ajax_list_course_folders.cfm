@@ -1,0 +1,1 @@
+<cfinclude template="inc_config.cfm"><cfinclude template="inc_functions.cfm"><cfoutput>#showCourseFolders(ftp_username,ftp_password,ftp_server,course_dir)#</cfoutput>

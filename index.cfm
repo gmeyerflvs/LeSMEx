@@ -56,11 +56,11 @@ textarea { width:500px; height:500px;}
     
     
     <cfif isDefined('form.toggle_url_concatlist')>
-    	<cfset stringout = modulesFilesPathList(ftp_username,ftp_password,ftp_server,form.courses_list_choice,form.url_concatlist_prepend_path)>
+    	<cfset stringout = modulesFilesPathList(ftp_username,ftp_password,ftp_server,form.courses_list_choice,form.url_concatlist_prepend_path,onlyTheseFolders(form))>
     
     <cfelse>
     
-    	<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice,bool_base_process)> 
+    	<cfset modulesFilesStruct = getModulesFiles(ftp_username,ftp_password,ftp_server,form.courses_list_choice,bool_base_process,onlyTheseFolders(form))> 
 		<cfset stringOut = getSiteMapXML(modulesFilesStruct,bool_base_process)> 
     </cfif>
 	
@@ -91,7 +91,7 @@ textarea { width:500px; height:500px;}
         <div class="form-group">
         <label>Select Course</label>
         
-        <select name="courses_list_choice" class="form-control width300">
+        <select name="courses_list_choice" class="form-control width300" id="id_courses_list_choice">
         		<cfif isDefined('form.courses_list_choice')>
                 <cfoutput><option selected="selected">#form.courses_list_choice#</option></cfoutput>
                 </cfif>
@@ -103,6 +103,7 @@ textarea { width:500px; height:500px;}
         
        
     </div>
+        <div id="id_course_folder_checkboxes"></div>
         <hr>
         <h4>&nbsp;</h4>
         <div class="form-group"> </div>
@@ -112,6 +113,8 @@ textarea { width:500px; height:500px;}
          <span id="id_concatlist_prepend_path_container" style="display:none;"> 
          	URL Prepend Path: <input class="width500" type="text" name="url_concatlist_prepend_path" id="id_concatlist_prepend_path" placeholder="http://domain.com/path/to/page/"/>
          </span>
+         
+         
         
         <cfif isDefined('form.courses_list_choice')>
         	<textarea class="form-control width500 mheight200" id="id_sitemap" name="sitemap"><cfoutput>#HTMLEditFormat(stringOut)#</cfoutput></textarea>
@@ -142,7 +145,29 @@ $(document).ready(function() {
 			prepend_path_container.hide();
 		}
 	});
+	
+	
+	$('#id_courses_list_choice').change(function(){
+		getCourseFoldersJSON($(this).val());
+	});
 });
+
+function getCourseFoldersJSON(course_dir){
+	$.getJSON( "ajax_list_course_folders.cfm?course_dir=" + course_dir, function( data ) {
+	  //alert(data.DATA.NAME);
+	  var items = [];
+	  var checkedval = '';
+	  items.push("<label>Select Module Folders</label><br/>");
+	  $.each( data.DATA.NAME, function( key, val ) {
+		if(val.indexOf('module') >= 0){ checkedval = " checked";} else { checkedval = '';}
+		items.push( "<input type='checkbox' name='modules_" + val + "'"+checkedval+"/> " + val + "<br/>" );
+	  });
+	 
+	  $('#id_course_folder_checkboxes').html(items.join( "\n" ));
+	  
+	});
+	
+}
 
 </script>
 </body>

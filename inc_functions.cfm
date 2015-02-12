@@ -32,7 +32,82 @@
 <cfreturn courses_qrs>
 </cffunction>
 
+<!--- Return qrs of Educator course folder names --->
+<cffunction name="showCourseFolders" output="false" returntype="string">
+<cfargument name="u" type="string">
+<cfargument name="p" type="string">
+<cfargument name="s" type="string">
+<cfargument name="dir" type="string">
 
+    <cfftp action = "open" 
+        username = "#arguments.u#" 
+        connection = "ftpc" 
+        password = "#arguments.p#" 
+        server = "#arguments.s#" 
+        stopOnError = "Yes"> 
+        
+    <cfftp action = "LISTDIR" 
+        stopOnError = "Yes" 
+        name = "ListFiles" 
+        directory = "#arguments.dir#" 
+        connection = "ftpc">
+        
+    <cfftp action = "close" 
+    connection = "ftpc" 
+    stopOnError = "Yes">     
+      
+    <cfquery dbtype="query" name="course_folders_qrs">
+        SELECT * FROM ListFiles
+        WHERE IsDirectory = 'YES'
+        AND name NOT LIKE 'docs'
+        AND name NOT LIKE 'image'
+        AND name NOT LIKE 'images'
+        AND name NOT LIKE 'swf'
+        AND name NOT LIKE 'flash'
+        AND name NOT LIKE 'glossary'
+        AND name NOT LIKE 'media'
+        AND name NOT LIKE '_notes'
+        AND name NOT LIKE 'welcome_%'
+        AND name NOT LIKE '%java%'
+        AND name NOT LIKE 'imgs'
+        AND name NOT LIKE 'global'
+        AND name NOT LIKE 'Library'
+        AND name NOT LIKE 'Scripts'
+        AND name NOT LIKE 'scripts'
+        AND name NOT LIKE 'Templates'
+        AND name NOT LIKE 'source'
+        AND name NOT LIKE 'style'
+        AND name NOT LIKE 'styles'
+        AND name NOT LIKE 'cheatsheet'
+        AND name NOT LIKE 'gendocs'
+        AND name NOT LIKE 'genimage'
+        AND name NOT LIKE 'genimages'
+    </cfquery>  
+              
+<cfreturn SerializeJSON(course_folders_qrs,true)>
+</cffunction>
+
+
+<!--- Returns a query WHERE IN statement from selected folder name checkboxes --->
+<cffunction name="onlyTheseFolders" output="true" returntype="string">
+<cfargument name="f" type="struct" required="yes">
+
+    <cfset outputStatement = "AND name IN (">
+    <cfset ct = structCount(arguments.f)>
+    <cfset tempArr = arrayNew(1)>
+    <cfloop collection="#arguments.f#" item="i">
+    	<cfif i CONTAINS "modules_">
+        	<cfset arrayAppend(tempArr,"'" & removechars(i,1,8) & "'")>
+        </cfif>
+    </cfloop>
+    <cfset outputStatement &= arrayToList(tempArr,',')>  
+    <cfset outputStatement &= ")"> 
+    <cfif NOT arrayLen(tempArr)>
+    	<cfset outputStatement = "">
+    </cfif> 
+              <cfdump var="#outputStatement#">
+<cfreturn outputStatement>
+</cffunction>
   
         
 <!--- Returns string list of html files with prepended paths concatenated with resulting html page names --->
@@ -42,6 +117,7 @@
 <cfargument name="s" type="string">
 <cfargument name="dir" type="string">
 <cfargument name="url_concatlist_prepend_path" type="string" required="no" default="">
+<cfargument name="only_these_folders" type="string" required="no" default="">
 
 
     <cfset returnStr = "">
@@ -63,7 +139,7 @@
     <cfquery dbtype="query" name="html_qrs">
         SELECT * FROM ListFiles
         WHERE IsDirectory = 'YES'
-        AND name LIKE '%module%'
+        <cfif arguments.only_these_folders NEQ ''>AND name LIKE '%module%'<cfelse>#arguments.only_these_folders#</cfif>
         ORDER BY path
     </cfquery>
     
@@ -112,7 +188,7 @@
 <cfargument name="s" type="string">
 <cfargument name="dir" type="string">
 <cfargument name="bool_base_process" type="boolean" required="no" default="false">
-
+<cfargument name="only_these_folders" type="string" required="no" default="">
 
     <cfset returnStruct = structNew()>
     
@@ -133,7 +209,7 @@
     <cfquery dbtype="query" name="html_qrs">
         SELECT * FROM ListFiles
         WHERE IsDirectory = 'YES'
-        AND name LIKE '%module%'
+        <cfif arguments.only_these_folders NEQ ''>AND name LIKE '%module%'<cfelse>#arguments.only_these_folders#</cfif>
         ORDER BY path
     </cfquery>
     
