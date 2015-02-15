@@ -105,7 +105,7 @@
     <cfif NOT arrayLen(tempArr)>
     	<cfset outputStatement = "">
     </cfif> 
-              <cfdump var="#outputStatement#">
+             
 <cfreturn outputStatement>
 </cffunction>
   
