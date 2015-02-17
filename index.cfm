@@ -34,7 +34,7 @@ textarea { width:500px; height:500px;}
     </head>
     <body>
 <cfinclude template="inc_config.cfm">    
-<cfinclude template="inc_functions.cfm">
+<cfinclude template="inc_functions_template.cfm">
 
 
 
@@ -44,7 +44,7 @@ textarea { width:500px; height:500px;}
     
     <cfif isDefined('form.toggle_base_process')>
     	<cfset bool_base_process = true>
-    <cfelse>
+    <cfelse> 
     	<cfset bool_base_process = false>
     </cfif>
     
