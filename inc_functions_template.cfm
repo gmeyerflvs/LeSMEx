@@ -9,13 +9,17 @@
         username = "#arguments.u#" 
         connection = "ftpc" 
         password = "#arguments.p#" 
-        server = "#arguments.s#" 
+        server = "#arguments.s#"
+        timeout = "60"
+        passive="yes" 
         stopOnError = "Yes"> 
         
     <cfftp action = "LISTDIR" 
         stopOnError = "Yes" 
         name = "ListFiles" 
         directory = "/" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
         
     <cfftp action = "close" 
@@ -44,12 +48,16 @@
         connection = "ftpc" 
         password = "#arguments.p#" 
         server = "#arguments.s#" 
+        timeout = "60"
+        passive="yes"
         stopOnError = "Yes"> 
         
     <cfftp action = "LISTDIR" 
         stopOnError = "Yes" 
         name = "ListFiles" 
         directory = "#arguments.dir#" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
         
     <cfftp action = "close" 
@@ -127,12 +135,16 @@
         connection = "ftpc" 
         password = "#arguments.p#" 
         server = "#arguments.s#" 
+        timeout = "60"
+        passive="yes"
         stopOnError = "Yes"> 
         
     <cfftp action = "LISTDIR" 
         stopOnError = "Yes" 
         name = "ListFiles" 
         directory = "/#arguments.dir#" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
         
     <!--- get folders with word 'module' in them --->    
@@ -150,6 +162,8 @@
         stopOnError = "Yes" 
         name = "modfiles_qrs" 
         directory = "#html_qrs.path#" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
         
         <!--- get and sort files that end with htm or html ---> 
@@ -197,12 +211,16 @@
         connection = "ftpc" 
         password = "#arguments.p#" 
         server = "#arguments.s#" 
+        timeout = "60"
+        passive="yes"
         stopOnError = "Yes"> 
         
     <cfftp action = "LISTDIR" 
         stopOnError = "Yes" 
         name = "ListFiles" 
         directory = "/#arguments.dir#" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
         
     <!--- get folders with word 'module' in them --->    
@@ -213,6 +231,8 @@
         ORDER BY path
     </cfquery>
     
+    <!---  <cfdump var="#html_qrs#">--->
+    
     <cfset arrCt = 1>
     <cfloop query="html_qrs">
     	<cfset lessonsArr = arrayNew(1)>
@@ -221,7 +241,11 @@
         stopOnError = "Yes" 
         name = "modfiles_qrs" 
         directory = "#html_qrs.path#" 
+        timeout = "60"
+        passive="yes"
         connection = "ftpc">
+        
+        
         
         <!--- get and sort files that end with htm or html ---> 
         <cfquery dbtype="query" name="html_qrs2">
@@ -231,6 +255,7 @@
             AND name NOT LIKE '%.LCK'
             order by path
         </cfquery>
+        <!--- <cfdump var="#html_qrs2#"><cfabort> --->
         
         <cfif arguments.bool_base_process>
         	<cfset lessonsArr = arrayNew(1)>
@@ -345,11 +370,12 @@
 
 
 <!--- Return either module, lesson or page --->
-<cffunction name="getMLP" output="no" returntype="string">
+<cffunction name="getMLP" output="yes" returntype="string">
 <cfargument name="filename" required="yes" type="string">
 <cfargument name="position" required="yes" type="numeric"><!---  1 = module, 2 = lesson, 3 = page--->
 
 	<cfset rawTempArr = listToArray(arguments.filename,'_',false)>
+    
     <cfset tempArr = arrayNew(1)>
     <cfloop from="1" to="#arraylen(rawTempArr)#" index="i">
         <cfset tempArr[i] = left(rawTempArr[i],2)>

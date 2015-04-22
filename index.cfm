@@ -86,7 +86,7 @@ textarea { width:500px; height:500px;}
 <hr>
 <p class="help-block">Directions: Select the Course Folder from which you want to extract a CF4 Site Map</p>
 
-<hr>
+<hr><hr>
 <form role="form" method="post" action="index.cfm">
         <div class="form-group">
         <label>Select Course</label>
