@@ -97,7 +97,7 @@
 
 
 <!--- Returns a query WHERE IN statement from selected folder name checkboxes --->
-<cffunction name="onlyTheseFolders" output="true" returntype="string">
+<cffunction name="onlyTheseFolders" output="false" returntype="string">
 <cfargument name="f" type="struct" required="yes">
 
     <cfset outputStatement = "AND name IN (">
@@ -113,9 +113,12 @@
     <cfif NOT arrayLen(tempArr)>
     	<cfset outputStatement = "">
     </cfif> 
+    
+    <!--- <cfdump var="#outputStatement#"> --->
              
 <cfreturn outputStatement>
 </cffunction>
+
   
         
 <!--- Returns string list of html files with prepended paths concatenated with resulting html page names --->
@@ -204,7 +207,19 @@
 <cfargument name="bool_base_process" type="boolean" required="no" default="false">
 <cfargument name="only_these_folders" type="string" required="no" default="">
 
-    <cfset returnStruct = structNew()>
+<!--- <cfdump var="#arguments#"> <cfabort> --->
+
+    <cfset var cond_expression = "">
+	<cfif arguments.only_these_folders EQ ''>
+		<cfset cond_expression = "AND name LIKE '%module%'">
+    <cfelse>
+		<cfset cond_expression = '#arguments.only_these_folders#'>
+    </cfif>
+    
+    
+  
+	
+	<cfset returnStruct = structNew()>
     
     <cfftp action = "open" 
         username = "#arguments.u#" 
@@ -223,15 +238,17 @@
         passive="yes"
         connection = "ftpc">
         
-    <!--- get folders with word 'module' in them --->    
+    <!--- get folders with word 'module' in them --->   
+    <cfdump var="#ListFiles#"> 
+
     <cfquery dbtype="query" name="html_qrs">
         SELECT * FROM ListFiles
         WHERE IsDirectory = 'YES'
-        <cfif arguments.only_these_folders NEQ ''>AND name LIKE '%module%'<cfelse>#arguments.only_these_folders#</cfif>
+        #PreserveSingleQuotes(cond_expression)#
         ORDER BY path
     </cfquery>
     
-    <!---  <cfdump var="#html_qrs#">--->
+    <!--- <cfdump var="#html_qrs#"><cfabort> --->
     
     <cfset arrCt = 1>
     <cfloop query="html_qrs">
