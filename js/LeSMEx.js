@@ -36,7 +36,10 @@ var getCourseFoldersJSON = function(course_dir){
 	  var items = [];
 	  var checkedval = '';
 	  var truncPath = '';
-	  items.push("<label>Select Module Folders</label><br/>");
+	  items.push("<label>Select Module Folders</label>");
+	  items.push("<p class='help-block small'>To select modules for processing use checkboxes on the left. </p>");
+	  items.push("<p class='help-block small'>Select a `find module folders here` hyperlink to look in the related folder for modules</p>");
+	  
 	  $.each( data.DATA.NAME, function( key, val ) {
 		//truncPath = remFirstFolderInPath(course_dir + '/' + val);
 		if(val.indexOf('module') >= 0){ checkedval = " checked";} else { checkedval = '';}
