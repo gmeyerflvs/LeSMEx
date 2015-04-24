@@ -93,7 +93,7 @@ textarea { width:500px; height:500px;}
 <form role="form" method="post" action="index.cfm">
         <div class="form-group">
         <label>Select Course</label>
-        
+        <p class="help-block small">Select course based on Educator folder name</p>
         <select name="courses_list_choice" class="form-control width300" id="id_courses_list_choice">
         		<cfif isDefined('form.courses_list_choice')>
                 <cfoutput><option selected="selected">#form.courses_list_choice#</option></cfoutput>
@@ -103,6 +103,7 @@ textarea { width:500px; height:500px;}
                 <option>#name#</option>
 			</cfoutput>
         </select>
+        
         <input type="hidden" id="courses_list_choice_path_id" name="courses_list_choice_path"/>
         
        
@@ -111,7 +112,7 @@ textarea { width:500px; height:500px;}
         <hr>
         <h4>&nbsp;</h4>
         <div class="form-group"> </div>
-        <button id="id_submit_but" type="submit" class="btn btn-default">Process!</button> <br>
+        <button id="id_submit_but" type="submit" class="btn btn-primary">Process!</button> &nbsp;&nbsp; <a class="btn btn-warning" href="javascript:void(0);" onclick="window.location.reload();">START OVER</a><br>
         <input type="checkbox" name="toggle_base_process" id="id_toggle_base_process"/> Ignore File Naming Convention (sitemap w/o lessons)<br>
          <input type="checkbox" name="toggle_url_concatlist" id="id_toggle_url_concatlist"/> Create html page list with prepended url path<br>
          <span id="id_concatlist_prepend_path_container" style="display:none;"> 
@@ -130,69 +131,9 @@ textarea { width:500px; height:500px;}
 <script src="js/bootstrap.min.js"></script> 
 
 
-<script>
-var courseSubdir = "";
-$(document).ready(function() {
-	var base_process = $('#id_toggle_base_process');
-	var url_concatlist = $('#id_toggle_url_concatlist');
-	var prepend_path_container = $('#id_concatlist_prepend_path_container');
-	
-	base_process.click(function(){
-		url_concatlist.prop( "checked", false );
-		prepend_path_container.hide();
-		
-	});
-	url_concatlist.click(function(){
-		base_process.prop( "checked", false );
-		if(url_concatlist.prop("checked")){
-				prepend_path_container.show();
-		}else{
-			prepend_path_container.hide();
-		}
-	});
-	
-	
-	$('#id_courses_list_choice').change(function(){
-		
-		var selectVal = $(this).val();
-		getCourseFoldersJSON(selectVal + (courseSubdir !== '' ? '/' + courseSubdir:''));
-		//reset courseSubdir value for next select box update
-		$('#courses_list_choice_path_id').val(selectVal + (courseSubdir !== '' ? '/' + courseSubdir:''));
-		courseSubdir = "";
-	});
-});
+<script src="js/LeSMEx.js" type="text/javascript"></script>
 
-var getCourseFoldersJSON = function(course_dir){ console.log('passed course_dir into getCourseFoldersJSON:' + course_dir);
-	$.getJSON( "ajax_list_course_folders.cfm?course_dir=" + course_dir, function( data ) {
-	  //alert(data.DATA.NAME);
-	  var items = [];
-	  var checkedval = '';
-	  var truncPath = '';
-	  items.push("<label>Select Module Folders</label><br/>");
-	  $.each( data.DATA.NAME, function( key, val ) {
-		//truncPath = remFirstFolderInPath(course_dir + '/' + val);
-		if(val.indexOf('module') >= 0){ checkedval = " checked";} else { checkedval = '';}
-		items.push( "<input type='checkbox' name='modules_" + val + "'/> " + course_dir + "/" + val + "&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' onclick='courseSubdirCall(\""+ val +"\")'><--- find module folders here</a><br/>" );
-	  });
-	 
-	  $('#id_course_folder_checkboxes').html(items.join( "\n" ));
-	  
-	});
-	
-}
 
-var courseSubdirCall = function(course_subdir){
-	courseSubdir = course_subdir;
-	$('#id_courses_list_choice').change();
-}
 
-var remFirstFolderInPath = function(fPath){
-	var pathArr = fPath.split('/');
-	pathArr.shift();
-	console.log('remFirstFolderInPath = ' + pathArr.join('/'));
-	return pathArr.join('/');
-}
-
-</script>
 </body>
 </html>
