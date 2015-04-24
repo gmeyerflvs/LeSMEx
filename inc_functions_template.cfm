@@ -1,3 +1,8 @@
+<cfset catchmsg = StructNew()>
+
+<cfset catchmsg.naming_convention_error = "This site isn't following the Module / Lesson / Page naming convention expected. Please re-try processing by checking the 'Ignore File Naming Convention' checkbox.">
+
+
 
 <!--- Return qrs of Educator courses that contain '_gs_' in the folder name --->
 <cffunction name="showCourses" output="false" returntype="query">
@@ -239,7 +244,7 @@
         connection = "ftpc">
         
     <!--- get folders with word 'module' in them --->   
-    <cfdump var="#ListFiles#"> 
+    <!--- <cfdump var="#ListFiles#">  --->
 
     <cfquery dbtype="query" name="html_qrs">
         SELECT * FROM ListFiles
@@ -390,16 +395,22 @@
 <cffunction name="getMLP" output="yes" returntype="string">
 <cfargument name="filename" required="yes" type="string">
 <cfargument name="position" required="yes" type="numeric"><!---  1 = module, 2 = lesson, 3 = page--->
-
-	<cfset rawTempArr = listToArray(arguments.filename,'_',false)>
+<cftry>
     
-    <cfset tempArr = arrayNew(1)>
-    <cfloop from="1" to="#arraylen(rawTempArr)#" index="i">
-        <cfset tempArr[i] = left(rawTempArr[i],2)>
-    </cfloop>
-
-
-<cfreturn tempArr[position]>
+        <cfset rawTempArr = listToArray(arguments.filename,'_',false)>
+        
+        <cfset tempArr = arrayNew(1)>
+        <cfloop from="1" to="#arraylen(rawTempArr)#" index="i">
+            <cfset tempArr[i] = left(rawTempArr[i],2)>
+        </cfloop>
+    
+    
+    <cfreturn tempArr[position]>
+<cfcatch>
+	<h2>#catchmsg.naming_convention_error#</h2>
+    <cfabort>
+</cfcatch>
+</cftry>
 </cffunction>
 
 <!--- Return module.lesson for lesson num attribute --->
@@ -420,6 +431,8 @@
 <!--- Return module from page name  --->
 <cffunction name="getModNumFromPage" output="no" returntype="string">
 <cfargument name="filename" required="yes" type="string">
+<cftry>
+
 
 	<cfset rawTempArr = listToArray(arguments.filename,'_',false)>
     <cfset returnString = arrayNew(1)>
@@ -430,6 +443,11 @@
 
 
 <cfreturn returnString>
+<cfcatch>
+	<h2>#catchmsg.naming_convention_error#</h2>
+    <cfabort>
+</cfcatch>
+</cftry>
 </cffunction>
 
 <!--- Return number as string with 2 placeholders: e.g. returns '01' but 10 returns '10' --->
