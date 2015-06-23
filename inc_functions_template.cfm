@@ -465,3 +465,108 @@
 </cffunction>
 
 
+<!--- Return a struct with 2 values about the course : the course folder name and framework info --->
+<cffunction name="courseFolderFWinfo" output="false" returntype="struct">
+<cfargument name="u" type="string">
+<cfargument name="p" type="string">
+<cfargument name="s" type="string">
+<cfargument name="dir" type="string">
+
+    <cfset returnStruct = structNew()>    
+    <cfset returnStruct.isFramework = false>
+    <cfset returnStruct.isFW_1 = false>
+    <cfset returnStruct.FW_version = false>
+    
+    <cfftp action = "open" 
+        username = "#arguments.u#" 
+        connection = "ftpc" 
+        password = "#arguments.p#" 
+        server = "#arguments.s#" 
+        timeout = "160"
+        passive="yes"
+        stopOnError = "Yes"> 
+        
+    <cfftp action = "LISTDIR" 
+        stopOnError = "Yes" 
+        name = "ListFiles" 
+        directory = "#arguments.dir#" 
+        timeout = "60"
+        passive="yes"
+        connection = "ftpc">
+        
+         
+      
+    <cfquery dbtype="query" name="course_folders_qrs">
+        SELECT * FROM ListFiles
+        WHERE IsDirectory = 'YES'
+    </cfquery>  
+    
+    <cfloop query="course_folders_qrs">
+    	<cfif course_folders_qrs.name EQ 'global' AND course_folders_qrs.IsDirectory EQ 'YES'>
+        	<cfftp action = "LISTDIR" 
+                stopOnError = "Yes" 
+                name = "globalfolderlist" 
+                directory = "#course_folders_qrs.path#" 
+                timeout = "60"
+                passive="yes"
+                connection = "ftpc">
+                
+                
+                
+                <cfloop query="globalfolderlist">
+                	<cfif globalfolderlist.name EQ 'js' AND globalfolderlist.IsDirectory EQ 'YES'>
+                    	<cfftp action = "LISTDIR" 
+                            stopOnError = "Yes" 
+                            name = "jsfolderlist" 
+                            directory = "#globalfolderlist.path#" 
+                            timeout = "60"
+                            passive="yes"
+                            connection = "ftpc">
+                            
+                            <cfloop query="jsfolderlist">
+                            	<cfif jsfolderlist.name EQ 'settings.js'>
+                                	<cfset returnStruct.isFramework = true>
+                                    
+                                    
+                                    <cfftp action = "getfile" 
+                                        remotefile="#jsfolderlist.path#" 
+                                        localfile="jsfile_temp.txt"
+                                        timeout = "60"
+                                        passive="yes"
+                                        failIfExists="false" 
+                                        connection = "ftpc">
+                                        
+                                        
+                                        <cffile action="read" file="jsfile_temp.txt" variable="jsfile">
+                                        <!--- var CFVersion = '4.0'; --->
+                                        <cfif find('CFVersion',jsfile,1)>
+                                        	<cfset versionStruct = refind("var +CFVersion += +'([0-9])\.([0-9])';",jsfile,1,true)>
+											<cfif refind("var +CFVersion += +'([0-9])\.([0-9])';",jsfile,1,false)>
+                                            	<cfset returnStruct.FW_version = mid(jsfile,versionStruct.pos[1],versionStruct.len[1])>
+                                            </cfif>
+                                        <cfelse>
+                                        	<cfset returnStruct.isFW_1 = true>
+                                        </cfif>
+                                        
+                                        <cffile action="delete" file="jsfile_temp.txt">
+                                        
+                                    
+                                </cfif>
+                                
+                                
+                                
+                            </cfloop>
+                    </cfif>
+                </cfloop>
+        </cfif>
+    </cfloop>
+    
+    <cfftp action = "close" 
+    connection = "ftpc" 
+    stopOnError = "Yes"> 
+    
+       
+<cfreturn returnStruct>
+</cffunction>
+
+
